@@ -1,0 +1,56 @@
+//My Grandmother is getting out and losing her sight.
+//To make it easier for her to find and run a program like outlook, a solution was designed to create a large arcade button. 
+//When the button is pushed it will run the windows run with whatever text is desired.
+//Since I come from the offensive side of things and when you test a POC you test by popping calc.  
+//So for this code I set it to run calc as well. 
+//I obviously changed this for the button I made for my grandma. 
+//I followed mostly this article with a few mods to get mine working https://timmyomahony.com/blog/making-usb-push-buttons
+
+#include <Bounce.h>
+
+// Define our button. We are using the
+// 3rd party "bounce" library to more reliably
+// read the button clicks.
+//
+// Read more:
+// https://www.pjrc.com/teensy/td_libs_Bounce.html
+Bounce buttonCommand = Bounce(PIN_D4, 10);
+
+// Setup the button with the pin we
+// have connected to and make sure to
+// make use of the internal pull-up circuitry
+void setup() {
+  pinMode(PIN_D4, INPUT_PULLUP); // Run what we want when button pressed
+  pinMode(PIN_D6, OUTPUT); // LED
+}
+
+void loop() {
+  buttonCommand.update();
+
+  // Our button pushed to run program; outputs runs the commands
+  if (buttonCommand.fallingEdge()) {
+    //Run windows+R to bring up the run prompt
+    Keyboard.set_modifier(MODIFIERKEY_GUI);
+    Keyboard.set_key1(KEY_R);
+    Keyboard.send_now();
+
+    // release all the keys at the same instant
+    Keyboard.set_modifier(0);
+    Keyboard.set_key1(0);
+    Keyboard.send_now();
+    
+    //Print the command wanted to run
+    Keyboard.print("calc");
+    
+    //worked better if I set a small dely before sending the enter key.
+    delay(500);
+    Keyboard.press(KEY_ENTER);
+    Keyboard.release(KEY_ENTER);
+   
+    digitalWrite(PIN_D6, HIGH); // LED ON
+  }
+  if(buttonCommand.risingEdge()){
+    digitalWrite(PIN_D6, LOW); // LED OFF
+  }
+
+}
